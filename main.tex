@@ -120,11 +120,11 @@ Both the performance and complexity metrics of all blocks used in the proposed d
     Less than and greater than, or so called magnitude, comparison can be implemented for $n$-bits inputs by extending the scheme as implemented in the \texttt{74x68x} series of devices\cite[p. 4]{74x682}. Since no equality indication is necessary, the $n$-input NAND gate computing the \signali{P=Q} signal can be ignored. This leaves one inverter per input, one XNOR gate and an inverter per pair of inputs, a series of $n$ AND gates with an increasing number of inputs ranging from $2$ to $n + 1$ and an $n$-input NOR gate. In order to be able to compute all possible inequalities two adaptions possibly need to be made. The \signal{P} and \signal{Q} inputs can be swapped and the \signali{P>Q} can be inverted. For this last step a single final inverter might be necessary. \Cref{tab:682_ineqs} lists the possible combinations of these options and what inequality they provide.
     \begin{custtab}{| c | c | c |}{682_ineqs}{Possible options regarding inequality detection.}
       \hline
-                               & Swap?      & Invert?    \\ \hline
-      $\text{P} >    \text{Q}$ &            & \checkmark \\ \hline
-      $\text{P} \geq \text{Q}$ & \checkmark &            \\ \hline
-      $\text{P} \leq \text{Q}$ &            &            \\ \hline
-      $\text{P} <    \text{Q}$ & \checkmark & \checkmark \\ \hline
+                               & Swap?      & Invert?    \\\hline
+      $\text{P} >    \text{Q}$ &            & \checkmark \\\hline
+      $\text{P} \geq \text{Q}$ & \checkmark &            \\\hline
+      $\text{P} \leq \text{Q}$ &            &            \\\hline
+      $\text{P} <    \text{Q}$ & \checkmark & \checkmark \\\hline
     \end{custtab}
 
     This leads to a total transistor count of $\f{T}{g}{mag}(n) = (3n + 1) \cdot \f{T}{g}{NOT} + n \cdot \f{T}{g}{XNOR} + \sum_{i = 2}^{n + 1}(\f{T}{g}{AND}(i)) + \f{T}{g}{NOR}(n) = 20 \cdot n + 2 + \sum_{i = 2}^{n + 1}(2 + 2i) = n^{2} + 23n + 2$. Since all input bits need to traverse through an inverter, an XNOR gate, an AND gate, an NOR gate and lastly possibly an inverter, the gate delay will be $\f{D}{d}{mag} = 2 \cdot \f{D}{d}{NOT} + \f{D}{d}{XNOR} + \f{D}{d}{AND} + \f{D}{d}{NOR} = 7$.
@@ -141,7 +141,7 @@ Both the performance and complexity metrics of all blocks used in the proposed d
 {The performance and complexity metrics of all blocks used in the proposed design, where $i$ indicates the number of inputs to certain blocks and $n$ indicates the width of an input in bits for certain blocks.}
 \hline
 Component & \multicolumn{2}{l||}{Transistor count} & \multicolumn{2}{l|}{Gate delay} \\
-          & General case & Trivial case            & Data & Control                   \\\hline\hline
+          & General case & Trivial case            & Data & Control                  \\\hline\hline
 \eqln{NOT}   {}       {2}                       {} {}  {}    {1}      {} {}
 \eqln{NAND}  {(i)}    {2i}                      {} {4} {}    {1}      {} {}
 \eqln{AND}   {(i)}    {2 + 2i}                  {} {6} {}    {2}      {} {}

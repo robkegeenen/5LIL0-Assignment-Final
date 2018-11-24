@@ -1,0 +1,175 @@
+\documentclass[twocolumn]{article}
+\usepackage[utf8]{inputenc}
+
+\title{5LIL0 Final Assignment}
+\author{Geenen, R. (0843558)}
+
+\begin{document}
+\maketitle
+
+G: Generic
+R: Real-Time
+O: ?
+W: Weight
+T: Transfer
+H: Hebbian?
+
+L:
+E:
+A: Architecture?
+R:
+N: Neural
++ Processor?
+
+
+
+Related work:
+ - CGRA mentioned
+ - Tensor: https://arxiv.org/pdf/1704.04760.pdf
+ - https://en.wikipedia.org/wiki/Neuromorphic_engineering
+ - https://www.economist.com/science-and-technology/2013/08/03/the-machine-of-a-new-soul
+ - https://ieeexplore.ieee.org/document/1693534
+ - https://phys.org/news/2018-10-brain-inspired-architecture-advance-ai.html
+ - http://irrigation.rid.go.th/rid15/ppn/Knowledge/Artificial%20Neuron%20Networks%20Technology/4.0%20Neural%20Networks%20Components.htm
+
+ - Analog: https://ieeexplore.ieee.org/document/239745
+ - Analog: https://ieeexplore.ieee.org/document/81862
+
+Fully connected for highest adaptability
+
+ 
+ https://stackoverflow.com/questions/3345079/estimating-the-number-of-neurons-and-number-of-layers-of-an-artificial-neural-ne
+ 
+ 
+ 
+Multipliers:
+ - https://scholarworks.gsu.edu/cgi/viewcontent.cgi?article=1030&context=cs_theses
+ - https://www.idosi.org/wasj/wasj2(4)/12.pdf
+ 
+ 
+ 
+Requirements:
+ - Forward propagation (inference)
+ - Backward propagation (inference)
+ - Mutual inhibition (inference) (causes cycles?) (https://en.wikipedia.org/wiki/Lateral_inhibition)
+ - Activation function (inference) (Sigmoid + Rectifier?)
+ - Hebbian learning (+decay?, x per cycle lost) (Training) (Considered future work)
+ - Bias neurons
+ - Other learning (Training) (no, is too complex)
+ - Weight import/export
+ 
+Technology:
+ - Digital => this, and also clocked and in CMOS
+ - Analog
+ - Pulse-based
+
+
+Since lateral inhibition as present in the brain causes an extra layer of iteration, it has been decided to implement a layer-master that will calculate the inhibition. This also allows the address to be distributed.
+
+Activation function memory could be shared across a layer by interposing a bus, but this makes backward propagation more difficult and disallows different activation functions, but in a layer that might not matter.
+
+
+Consisting of only multipliers (synapses) and accumulators (neurons).
+Each multiplier has a latch and a shift register
+All shift registers in series
+A la JTAG
+
+
+Local host proc for in-place learning?
+USB adapter for in-/exporting weights
+
+
+How about inhibition/bi-directionality
+
+
+- Max speed in bits/sec, max clock frequency to all parts of chip?
+   - One bit per clock cycle
+
+
+
+Count num of transistors.
+Since unique arch, length/area of wires could be significant (possibility is neglected).
+
+Mention that accumulator is clipping instead of overflowing (or does it simply have more bits?
+16x16 mul => 32 result => 32 + log2(num neurons per layer) accumulator
+Only highest order bits are sent to/used by activation function.
+
+%Mul transistor count:
+%https://www.idosi.org/wasj/wasj2(4)/12.pdf
+%http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.121.7784&rep=rep1&type=pdf
+%https://ieeexplore.ieee.org/document/743408
+
+
+
+Variables:
+w_addr: Width of neuron const address
+w_cid: Width of chip ID
+w_a (w_addr + w_cid): Width of address busses
+w_d: Width of data busses
+
+
+
+
+
+
+
+
+Analysis (all done in standard CMOS tech):
+  - regf: 128KiB = 2^16 x 16-bit regs)
+    - 256x256 matrix of regc
+    - 2x 8-to-1 decoder
+
+    - For fwd+bwd: x 16-bit regs
+
+
+
+
+
+
+
+
+neurons could be multiplexed, reg file instead of one value reg. Not chosen due to overhead (control and size of reg file, also both w reg files would grow, besides 16x16 mul is only about 6k transistors (double check this, w.r.t. 8-to-1 demux being 4k, if true, good argument not to mux))
+
+
+Ihib cycle ignores activation function, is that ok?
+
+Activation does pass during ihib cycle, not used.
+
+
+Chain multiple chips => part of address with external strapping, config lines can be chained, disable bias node
+
+\section{Sections}
+ - Introduction
+ - Whole chip overview
+ - bus-layer-bus overview
+ - neuron internals
+   - Weight import/export?
+ - die area calculation
+   - mem area per neuron depends on neurons per layer
+   - plus constant term for computation logic
+   - bus area?
+ - critical path + freq analysis
+   
+ - explanation of cycles
+ 
+ - Conclusion
+
+
+Optimizations:
+  11.2.2.1, Weste:2010:CVD:1841628, This delay can be reduced by omitting the inverters on the outputs, as was done in Figure 11.4(c). Because addition is a self-dual function (i.e., the function of complementary inputs is the complement of the function)
+  Pass-function, pass-gates, transmission gate
+  Merging double inversions, except where used as buffer.
+  
+  Best done partially by automated tools.
+
+
+TODO (in sch):
+  - Pass addr back from first layer for using memory.
+  - Disable bias node if CID == 0
+
+
+
+
+
+
+\end{document}

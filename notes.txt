@@ -1,12 +1,3 @@
-\documentclass[twocolumn]{article}
-\usepackage[utf8]{inputenc}
-
-\title{5LIL0 Final Assignment}
-\author{Geenen, R. (0843558)}
-
-\begin{document}
-\maketitle
-
 G: Generic
 R: Real-Time
 O: ?
@@ -22,33 +13,21 @@ N: Neural
 + Processor?
 
 https://pdfs.semanticscholar.org/5644/4dd5f989d108e746dfd7a00f5472896eb015.pdf
-
-Related work:
- - CGRA mentioned
- - Tensor: https://arxiv.org/pdf/1704.04760.pdf
- - https://en.wikipedia.org/wiki/Neuromorphic_engineering
- - https://www.economist.com/science-and-technology/2013/08/03/the-machine-of-a-new-soul
- - https://ieeexplore.ieee.org/document/1693534
- - https://phys.org/news/2018-10-brain-inspired-architecture-advance-ai.html
- - http://irrigation.rid.go.th/rid15/ppn/Knowledge/Artificial%20Neuron%20Networks%20Technology/4.0%20Neural%20Networks%20Components.htm
-
- - Analog: https://ieeexplore.ieee.org/document/239745
- - Analog: https://ieeexplore.ieee.org/document/81862
-
-Fully connected for highest adaptability
-
- 
 https://stackoverflow.com/questions/3345079/estimating-the-number-of-neurons-and-number-of-layers-of-an-artificial-neural-ne
-Intel lanceert tweede generatie AI-accelerator: Neural Compute Stick 2
+
  
  
-Multipliers:
- - https://scholarworks.gsu.edu/cgi/viewcontent.cgi?article=1030&context=cs_theses
- - https://www.idosi.org/wasj/wasj2(4)/12.pdf
+ 
+ 
+ 
+ 
+ 
  
  
  
 Requirements:
+ - MLP (not only perceptrons) and CNN highest prio, RNN lower prio \cite{8192463}
+   - Fully connected for highest adaptability
  - Forward propagation (inference)
  - Backward propagation (inference)
  - Mutual inhibition (inference) (causes cycles?) (https://en.wikipedia.org/wiki/Lateral_inhibition)
@@ -59,14 +38,25 @@ Requirements:
  - Weight import/export
  
 Technology:
+- https://www.economist.com/science-and-technology/2013/08/03/the-machine-of-a-new-soul
+ - https://en.wikipedia.org/wiki/Neuromorphic_engineering
+
  - Digital => this, and also clocked and in CMOS
  - Analog
+   - Analog: https://ieeexplore.ieee.org/document/239745
+   - Analog: https://ieeexplore.ieee.org/document/81862
+   => no, since digital integrates better, the author however acknowledges analog approaches to be...
  - Pulse-based
+
+
 
 
 Since lateral inhibition as present in the brain causes an extra layer of iteration, it has been decided to implement a layer-master that will calculate the inhibition. This also allows the address to be distributed.
 
 Activation function memory could be shared across a layer by interposing a bus, but this makes backward propagation more difficult and disallows different activation functions, but in a layer that might not matter.
+
+
+
 
 
 Consisting of only multipliers (synapses) and accumulators (neurons).
@@ -94,10 +84,6 @@ Mention that accumulator is clipping instead of overflowing (or does it simply h
 16x16 mul => 32 result => 32 + log2(num neurons per layer) accumulator
 Only highest order bits are sent to/used by activation function.
 
-%Mul transistor count:
-%https://www.idosi.org/wasj/wasj2(4)/12.pdf
-%http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.121.7784&rep=rep1&type=pdf
-%https://ieeexplore.ieee.org/document/743408
 
 
 
@@ -165,11 +151,4 @@ Optimizations:
 
 TODO (in sch):
   - Pass addr back from first layer for using memory.
-  - Disable bias node if CID == 0
-
-
-
-
-
-
-\end{document}
+  - Disable bias node if CID != 0

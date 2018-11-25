@@ -1,0 +1,29 @@
+\newcommand{\bfit}[1]{\item{\bf #1:}}
+\newcommand{\ifnn}[1]{\if\relax\detokenize{#1}\relax\else}
+\newcommand{\f}[3]{#1_{\text{\ifnn{#2}#2,\fi#3}}}
+%%begin novalidate
+\NewDocumentEnvironment{custtab}{mmmm}{
+  \begin{table#1}[!ht]
+    \begin{center}
+      \begin{tabular}{#2}
+}{
+      \end{tabular}
+      \caption{#4}
+      \label{tab:#3}
+    \end{center}
+  \end{table#1}
+}
+\NewDocumentEnvironment{custeqn}{mm}{
+  \begin{figure#1}[!ht]
+    \begin{equation}
+      \label{eqn:#2}
+      \begin{aligned}
+}{
+      \end{aligned}
+    \end{equation}
+  \end{figure#1}
+}
+%%end novalidate
+\newcommand{\refsec}[2]{\section{#1}\label{sec:#2}}
+\newcommand{\signal}[1]{\texttt{$\text{#1}$}}
+\newcommand{\signali}[1]{\texttt{$\overline{\text{#1}}$}}

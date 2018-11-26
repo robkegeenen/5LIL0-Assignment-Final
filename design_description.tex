@@ -1,0 +1,44 @@
+\refsec{Suggested design overview}{design}
+\PARstart{A}{s} detailed in \Cref{sec:related}, most improvement in terms of performance and efficiency is expected to be achieved by highly distributing both the compute power and the memory. In a biological \ac{NN} as found in the (human) brain, the neurons themselves are the computing element and the memory is realized by the synaptic weights between the neurons. \todo[inline]{reference human brain} No central computing element or central memory system is present, the whole brain performs both functions in a highly distributed way. Why would a man-made substrate designed to emulate biological functions behave in a different way? However next to the global requirement that the substrate must be highly distributed, some additional design choices have been made before arriving at the presented design.
+
+\refsubsec{Chosen technology}{technology}
+\PARstart{A}{b}
+\todo[inline]{Here about everything CMOS}
+
+\refsubsec{Layer overview}{layer}
+\PARstart{I}{t} is desired that the substrate is able to emulate inference in both \acp{MLP} and \acp{CNN}, since these are two of the most often used \ac{NN} types\cite{8192463}. The ability to also emulate \acp{RNN} would be a nice additional bonus. Supporting \acp{RNN} should be possible in the suggested design with limited modifications. \todo[inline]{make this happen} The suggested implementation consists of a fully connected network in its base. This ensures it is able to emulate both \acp{MLP} and \acp{CNN}.
+
+The global overview of a single layer of the suggested design is presented in \todo[inline]{insert \textbackslash Cref\{\}}. The \texttt{N\_l\_*} blocks are the neurons, the implementation of which will be detailed in \Cref{sec:neuron}. The \texttt{A\_l} block performs the activation function for all neurons in this layer. Its implementation will be explained in \Cref{sec:activation}. Finally the \texttt{B\_l} block is the bias neuron and it will be described in more detail in \Cref{sec:bias}. Multiple of these layers can be connected together via the \signal{layer\_in} and \signal{layer\_out} ports and each neuron in this layer will be able to communicate to all neurons in the next layer and to all neurons in the previous layer, achieving a fully connected network.
+
+The \signal{external} port is connected in parallel to all layers and will be brought to the outside of the chip. This port contains signals that are important to all blocks, such as the chip identification (\signal{CID}), the clock and reset lines. Furthermore the \signal{read\_enable} and \signal{write\_enable} signals allow the first and the last layers to communicate, either to a host processor or a memory located next to the substrate. These signals indicate when valid neuron addresses and data are present on the \signal{layer\_out} port or are requested on the \signal{layer\_in} port. This communication is required for feeding data into and retrieving data out of the \ac{NN}. These signals are left unconnected on other layers.
+
+The \signal{config\_*} signals are important in configuring the parameters for the \ac{NN} and they function as a large shift register, shifting data in on the \signal{config\_in} line at each clock tick on the \signal{config\_clk} line. The \signal{config\_out} line can be daisy-chained to other layers, causing the complete chip to become one large shift register and only needing three signals to the outside to configure all parameters of the \ac{NN}. This approach might sound reminiscent of certain boundary scan techniques such as the one employed in daisy-chained JTAG (IEEE 1149.1)\todo[inline]{insert \textbackslash cite\{\}}, which the configuration system has taken inspiration of. The configuration system in this form allows for either a host processor located next to the substrate, or a light-weight dongle like a USB adapter to be used for configuration. This system also allows more than one substrate chip to be daisy-chained on a single \ac{PCBA}.
+
+\refsubsec{Neuron implementation}{neuron}
+
+
+\refsubsec{Activation function implementation}{activation}
+
+
+\refsubsec{Bias implementation}{bias}
+
+
+
+
+
+
+\todo[inline]{remove this garbage}
+\begin{itemize}
+  \bfit{Types of \acp{NN}}
+    
+  \bfit{Bi-directionality}
+    The substrate must be able to emulate bi-directional inference, which means that both forwards as well as backwards propagation must be possible between the neurons.
+  \bfit{Lateral inhibition}
+    The substrate must be able to emulate networks which employ mutual inhibition between neurons in a single layer. The substrate has been designed to support lateral inhibition instead of forward inhibition since that resembles biological \acp{NN} closest. \todo[inline]{find reference for this}
+  \bfit{Activation function}
+    The substrate must be able to emulate multiple activation functions for the neurons, among which at least the \ac{ReLU} and Sigmoid functions, since those are among the most used activation functions in artificial \acp{NN}\cite{8192463}. However the more different activation functions are supported, the better.
+  \bfit{}
+\end{itemize}
+
+
+

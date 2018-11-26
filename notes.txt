@@ -20,12 +20,12 @@ https://stackoverflow.com/questions/3345079/estimating-the-number-of-neurons-and
  
  
  
+Rename all "design" to substrate
  
  
  
  
- 
-Requirements:
+Requirements/conclusion:
  - MLP (not only perceptrons) and CNN highest prio, RNN lower prio \cite{8192463}
    - Fully connected for highest adaptability
  - Forward propagation (inference)
@@ -36,6 +36,7 @@ Requirements:
  - Bias neurons
  - Other learning (Training) (no, is too complex)
  - Weight import/export
+ - Daisy chained chips
  
 Technology:
 - https://www.economist.com/science-and-technology/2013/08/03/the-machine-of-a-new-soul
@@ -59,10 +60,8 @@ Activation function memory could be shared across a layer by interposing a bus, 
 
 
 
-Consisting of only multipliers (synapses) and accumulators (neurons).
-Each multiplier has a latch and a shift register
-All shift registers in series
-A la JTAG
+
+Weigths+multipliers (analougus to synapses) merged into the neurons (analogous to neurons).
 
 
 Local host proc for in-place learning?
@@ -111,7 +110,7 @@ Analysis (all done in standard CMOS tech):
 
 
 
-
+ The lateral inhibition will be implemented in a fashion employing a \ac{kWTA} strategy.
 
 
 neurons could be multiplexed, reg file instead of one value reg. Not chosen due to overhead (control and size of reg file, also both w reg files would grow, besides 16x16 mul is only about 6k transistors (double check this, w.r.t. 8-to-1 demux being 4k, if true, good argument not to mux))
@@ -146,7 +145,7 @@ Optimizations:
   Pass-function, pass-gates, transmission gate
   Merging double inversions, except where used as buffer.
   
-  Best done partially by automated tools.
+  Best done at least partially by automated tools.
 
 
 TODO (in sch):

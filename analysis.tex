@@ -11,36 +11,63 @@
 \end{itemize}
 
 \refsubsec{Neuron analysis}{aneuron}
-\PARstart{T}{he} complexity of a single neuron can be established simply by counting the number of occurrences of each component and adding their respective transistor counts. Since a multiplication of two $w_{d}$-bit numbers yields a $2w_{d}$-bit result, the data path from the multiplier to the accumulator is $2w_{d}$ bits wide. The whole accumulator and inhibition data path is $2w_{d} + \lceil\log_{2}(n)\rceil$ bits wide, since this is the number of bits necessary to fully capture an $n$ times accumulation of $2w_{d}$-bit numbers. The highest order $\lceil\log_{2}(n)\rceil$ bits are kept at zero on the \signal{B} input of \texttt{alu\_add}. Implementing the neuron in this way is a design decision made to enable most flexibility and precision. Other options would include making sure that \texttt{alu\_add} clips the output to a certain width and does not overflow the number of bits available. The \signal{d\_o} signal is also $2w_{d} + \lceil\log_{2}(n)\rceil$ bits wide, but the full precision is only used during the inhibition cycle. Only the highest order $w_{da}$ bits are used by the activation function, where most often $w_{da} = w_{d}$ will be chosen, since the precision in the activation function input and output are equal in that case. This leads to a total transistor count for a single neuron as shown in \Cref{eqn:neuron}.
+\PARstart{T}{he} complexity of a single neuron can be established simply by counting the number of occurrences of each component and adding their respective transistor counts. Since a multiplication of two $w_{d}$-bit numbers yields a $2w_{d}$-bit result, the data path from the multiplier to the accumulator is $2w_{d}$ bits wide. The whole accumulator and inhibition data path is $2w_{d} + \lceil\log_{2}(n)\rceil$ bits wide, since this is the number of bits necessary to fully capture an $n$ times accumulation of $2w_{d}$-bit numbers. The highest order $\lceil\log_{2}(n)\rceil$ bits are kept at zero on the \signal{B} input of \texttt{alu\_add}. Implementing the neuron in this way is a design decision made to enable most flexibility and precision. Other options would include making sure that \texttt{alu\_add} clips the output to a certain width and does not overflow the number of bits available. The \signal{d\_o} signal is also $2w_{d} + \lceil\log_{2}(n)\rceil$ bits wide, but the full precision is only used during the inhibition cycle. Only the highest order $w_{da}$ bits are used by the activation function, where most often $w_{da} = w_{d}$ will be chosen, since the precision in the activation function input and output are equal in that case. This leads to a total transistor count for a single neuron as shown in \Cref{eqn:neuron}. In this analysis and all observations derived from it the assumption is made that the trivial case for all \texttt{regcf} is applicable.
 
-\begin{custeqn}{*}{neuron}
-  4 \cdot &\f{T}{g}{bufn}(w_{a}) +                            &\text{(Address \texttt{bufn})}\\
-  2 \cdot &\f{T}{g}{bufn}(w_{d}) +                            &\text{(Forward \& backward input \texttt{bufn})}\\
-  2 \cdot &\f{T}{t}{regcf}(2^{w_{a}}, w_{d}) +                &\text{(Weight \texttt{regfc})}\\
-  2 \cdot &\f{T}{g}{mux}(w_{d}) +                             &\text{(Forward \& backward data \texttt{mux})}\\
-          &\f{T}{g}{mul}(w_{d}) +                             &\text{(\texttt{alu\_mul})}\\
-          &\f{T}{g}{add}(2w_{d} + \lceil\log_{2}(n)\rceil) +  &\text{(\texttt{alu\_add})}\\
-          &\f{T}{g}{regc}(2w_{d} + \lceil\log_{2}(n)\rceil) + &\text{(\texttt{regc\_ihib\_rst})}\\
-  2 \cdot &\f{T}{g}{mux}(2w_{d} + \lceil\log_{2}(n)\rceil) +  &\text{(\texttt{mux} before \texttt{reg\_val} \& \texttt{reg\_prev})}\\
-  2 \cdot &\f{T}{g}{reg}(2w_{d} + \lceil\log_{2}(n)\rceil) +  &\text{(\texttt{reg\_val} \& \texttt{reg\_prev})}\\
-  2 \cdot &\f{T}{g}{bufn}(2w_{d} + \lceil\log_{2}(n)\rceil) + &\text{(Output \& inhibition input \texttt{bufn})}\\
-          &\f{T}{g}{mag}(2w_{d} + \lceil\log_{2}(n)\rceil) +  &\text{(\texttt{alu\_gt})}\\
-          &\f{T}{g}{reg}(\lceil\log_{2}(n)\rceil) +           &\text{(\texttt{cnt\_ihib})}\\
-          &\f{T}{g}{regc}(\lceil\log_{2}(n)\rceil) +          &\text{(\texttt{regc\_ihib\_k})}\\
-          &\f{T}{g}{mag}(\lceil\log_{2}(n)\rceil) +           &\text{(\texttt{alu\_lt})}\\
-          &\f{T}{g}{ff} +                                     &\text{(\texttt{ff\_tok})}\\
+\stepcounter{equation}
+\begin{align*}
+  4 \cdot &\f{T}{g}{bufn}(w_{a}) +                            &&\text{(Address \texttt{bufn})}\\
+  2 \cdot &\f{T}{g}{bufn}(w_{d}) +                            &&\text{(Fwd \& bwd input \texttt{bufn})}\\
+  2 \cdot &\f{T}{t}{regcf}(2^{w_{a}}, w_{d}) +                &&\text{(Weight \texttt{regfc})}\\
+  2 \cdot &\f{T}{g}{mux}(w_{d}) +                             &&\text{(Fwd \& bwd data \texttt{mux})}\\
+          &\f{T}{g}{mul}(w_{d}) +                             &&\text{(\texttt{alu\_mul})}\\
+          &\f{T}{g}{add}(2w_{d} + \lceil\log_{2}(n)\rceil) +  &&\text{(\texttt{alu\_add})}\\
+          &\f{T}{g}{regc}(2w_{d} + \lceil\log_{2}(n)\rceil) + &&\text{(\texttt{regc\_ihib\_rst})}\\
+  2 \cdot &\f{T}{g}{mux}(2w_{d} + \lceil\log_{2}(n)\rceil) +  &&\text{(accumulator \texttt{mux})}\\
+  2 \cdot &\f{T}{g}{reg}(2w_{d} + \lceil\log_{2}(n)\rceil) +  &&\text{(\texttt{reg\_val} \& \texttt{reg\_prev})}\\
+  2 \cdot &\f{T}{g}{bufn}(2w_{d} + \lceil\log_{2}(n)\rceil) + &&\text{(Out \& inhibition in \texttt{bufn})}\\
+          &\f{T}{g}{mag}(2w_{d} + \lceil\log_{2}(n)\rceil) +  &&\text{(\texttt{alu\_gt})}\\
+          &\f{T}{g}{reg}(\lceil\log_{2}(n)\rceil) +           &&\text{(\texttt{cnt\_ihib})}\\
+          &\f{T}{g}{regc}(\lceil\log_{2}(n)\rceil) +          &&\text{(\texttt{regc\_ihib\_k})}\\
+          &\f{T}{g}{mag}(\lceil\log_{2}(n)\rceil) +           &&\text{(\texttt{alu\_lt})}\\
+          &\f{T}{g}{ff} +                                     &&\text{(\texttt{ff\_tok})}\\
   6 \cdot &\f{T}{g}{bufp} + \rlap{$
   4 \cdot  \f{T}{g}{NOT} +
   6 \cdot  \f{T}{t}{AND} +
-  3 \cdot  \f{T}{t}{OR} = $}&&\\
-  \rlap{$95 + (539 + 25w_{d}) \cdot w_{d} + 24w_{a} + (207 + 4w_{a} + \lceil\log_{2}(n)\rceil) \cdot \lceil\log_{2}(n)\rceil +$}&&\\
-  \rlap{$(20 + 92w_{d}) \cdot 2^{w_{a}} + (16 + 8\sqrt{2^{w_{a}}}) \cdot \log_{2}(\sqrt{2^{w_{a}}})$}&&\\
-\end{custeqn}
+  3 \cdot  \f{T}{t}{OR} = $}&\tag{\theequation}\label{eqn:neuron}\\
+  \rlap{$95 + (539 + 25w_{d}) \cdot w_{d} + 24w_{a} +$}&\\
+  \rlap{$(207 + 4w_{a} + \lceil\log_{2}(n)\rceil) \cdot \lceil\log_{2}(n)\rceil +$}&\\
+  \rlap{$(20 + 92w_{d}) \cdot 2^{w_{a}} + (16 + 8\sqrt{2^{w_{a}}}) \cdot \log_{2}(\sqrt{2^{w_{a}}})$}&\\
+\end{align*}
 
 The performance of a neuron will be expressed in the gate delay of the critical path during each of the three cycles just as was done with each individual component, since the largest gate delay during any of the cycles will determine the maximum frequency of the final chip. During the forward cycle the input critical path goes through the input buffer, which is enabled by the forward signal, \texttt{regcf\_fwd} followed by \texttt{alu\_mul} and \texttt{alu\_add}, finally arriving at \texttt{reg\_val} and \texttt{reg\_prev}. The total input gate delay will therefore become $\f{D}{d}{bufp} + \f{D}{c}{bufn} + \f{D}{d}{regcf} + \f{D}{d}{mux} + \f{D}{d}{mul}(w_{d}) + \f{D}{d}{add}(w_{d}) + \f{D}{d}{mux} + \f{D}{d}{reg} = 23 + 4w_{d}$. During the forward cycle the output critical path goes from \texttt{reg\_prev} through an output buffer enabled by the output of \texttt{ff\_tok}, leading to an output gate delay of $\f{D}{d}{bufp} + \f{D}{d}{ff} + \f{D}{c}{bufn} = 7$.
 
 During the backward cycle the input critical path follows a similar path as during the forward cycle, except it passes through \texttt{regcf\_bwd} instead of \texttt{regcf\_fwd}, this does not have any influence on the gate delay however. Since the output critical path is exactly the same as during the forward cycle, also the output gate delay is the same.
 
-During the inhibition cycle the critical path goes
+During the inhibition cycle the input critical path goes through an input buffer followed by \texttt{alu\_gt}, ending at \texttt{cnt\_ihib}, leading to a gate delay of $\f{D}{d}{bufp} + \f{D}{d}{bufn} + \f{D}{d}{mag} + \f{D}{d}{reg} = 13$. Meanwhile the critical path during the propagation clock tick after the inhibition cycle goes from \texttt{cnt\_ihib} through \texttt{alu\_lt}, two multiplexers before arriving at \texttt{reg\_prev}, leading to a gate delay of $\f{D}{d}{mag} + \f{D}{c}{mux} + \f{D}{d}{mux} + \f{D}{d}{reg} = 14$. Again the output critical path is the same as for the other two cycles, so the gate delay is also the same.
 
+Since for any value of $n$ the input gate delay of the forward and backward cycle are dominant over both inhibition gate delays, that is the input gate delay of the neuron, while the output gate delay is equal for all cycles.
 
+\refsubsec{Activation function analysis}{aactivation}
+\PARstart{T}{he} implementation of the activation function consists of one \texttt{regcf}, two \texttt{bufn} and a \texttt{bufp}, leading to a total transistor count of $\f{T}{g}{regcf}(2^{w_{da}}, w_{d}) + 2 \cdot \f{T}{g}{bufn}(w_{d}) + \f{T}{g}{bufp} = 12 + (12 + 46 \cdot 2^{w_{da}}) \cdot w_{d} + 10 \cdot 2^{w_{da}} + (8 + 4\sqrt{2^{w_{da}}}) \cdot \log_{2}(\sqrt{2^{w_{da}}})$. Again the assumption is made that the trivial case is applicable for \texttt{regcf}.
+
+Since the activation function is not used during the inhibition cycle, the gate delay in that cycle is not applicable. During both the forward and the backward cycle the critical path goes through the \texttt{regcf} and one \texttt{bufn}, this means that the gate delay is $\f{D}{d}{regcf} + \f{D}{c}{bufn} = 11$.
+
+\refsubsec{Bias analysis}{abias}
+\PARstart{T}{he} transistor count of the bias neuron can be established in a similar way to the regular neuron, leading to a total transistor count as shown in \Cref{eqn:bias}.
+
+\begin{custeqn}{}{bias}&
+          \f{T}{g}{regc}(w_{d}) +
+  2 \cdot \f{T}{g}{bufn}(w_{d}) +
+  2 \cdot \f{T}{g}{bufn}(w_{a}) + \\&
+  3 \cdot \f{T}{g}{bufn}(1) +
+  5 \cdot \f{T}{g}{ff} +
+  5 \cdot \f{T}{t}{AND} +
+          \f{T}{g}{mux}(1) +      \\&
+  3 \cdot \f{T}{g}{bufp} =
+  302 + 52w_{d} + 12w_{a}         \\&
+\end{custeqn}
+
+Both in the forward cycle and in the backward cycle the critical path goes from the corresponding \texttt{ff} and \texttt{ff\_tok}, through and AND gate and through a control input of a \texttt{bufp}, leading to a gate delay of $\f{D}{d}{bufp} + \f{D}{d}{ff} + \f{D}{d}{AND} + \f{D}{c}{bufn} = 9$. In the inhibition cycle the critical path is similar, only the signal does not have to pass through the control input of a \texttt{bufn}, only through the data input, leading to a gate delay of $\f{D}{d}{bufp} + \f{D}{d}{ff} + \f{D}{d}{AND} + \f{D}{d}{bufn} = 8$.
+
+\refsubsec{Layer and chip analysis}{alayerchip}
+\todo[inline]{type shizzle here}

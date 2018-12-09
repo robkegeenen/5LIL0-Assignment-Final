@@ -1,23 +1,4 @@
-G: Generic
-R: Real-Time
-O: ?
-W: Weight
-T: Transfer
-H: Hebbian?
-
-L:
-E:
-A: Architecture?
-R:
-N: Neural
-+ Processor?
-
-https://pdfs.semanticscholar.org/5644/4dd5f989d108e746dfd7a00f5472896eb015.pdf
-https://stackoverflow.com/questions/3345079/estimating-the-number-of-neurons-and-number-of-layers-of-an-artificial-neural-ne
-
- 
- 
-Requirements/conclusion:
+Conclusion:
  - MLP (not only perceptrons) and CNN highest prio, RNN lower prio \cite{8192463}
    - Fully connected for highest adaptability
  - Forward propagation (inference)
@@ -32,47 +13,6 @@ Requirements/conclusion:
  
 
 
-
-- Max speed in bits/sec, max clock frequency to all parts of chip?
-   - One bit per clock cycle
-
-
-
-Since unique arch, length/area of wires could be significant (possibility is neglected).
-
-
-
-
-
-Analysis (all done in standard CMOS tech):
-  - regf: 128KiB = 2^16 x 16-bit regs)
-    - 256x256 matrix of regc
-    - 2x 8-to-1 decoder
-
-    - For fwd+bwd: x 16-bit regs
-
-
-
-
-
-
-neurons could be multiplexed, reg file instead of one value reg. Not chosen due to overhead (control and size of reg file, also both w reg files would grow, besides 16x16 mul is only about 6k transistors (double check this, w.r.t. 8-to-1 demux being 4k, if true, good argument not to mux))
-
-
-
-
-\section{Sections}
-
- - die area calculation
-   - mem area per neuron depends on neurons per layer
-   - plus constant term for computation logic
-   - bus area?
- - critical path + freq analysis
-   
- 
- - Conclusion
-
-
 Optimizations:
   11.2.2.1, Weste:2010:CVD:1841628, This delay can be reduced by omitting the inverters on the outputs, as was done in Figure 11.4(c). Because addition is a self-dual function (i.e., the function of complementary inputs is the complement of the function)
   Pass-function, pass-gates, transmission gate
@@ -84,7 +24,4 @@ Optimizations:
 Future work:
   - translate design to analog
   - implement learning => learnt model can be exported using same USB dongle/host proc.
-
-
-
 

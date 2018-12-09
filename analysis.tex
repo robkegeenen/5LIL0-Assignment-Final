@@ -47,10 +47,14 @@ During the inhibition cycle the input critical path goes through an input buffer
 
 Since for any value of $n$ the input gate delay of the forward and backward cycle are dominant over both inhibition gate delays, that is the input gate delay of the neuron, while the output gate delay is equal for all cycles.
 
+Furthermore the length of the configuration shift register can be determined to be $(2 + 2^{w_{a}}) \cdot w_{d} + 2 \cdot \lceil\log_{2}(n)\rceil$ by simply adding up all bit widths of all configuration registers.
+
 \refsubsec{Activation function analysis}{aactivation}
 \PARstart{T}{he} implementation of the activation function consists of one \texttt{regcf}, two \texttt{bufn} and a \texttt{bufp}, leading to a total transistor count of $\f{T}{g}{regcf}(2^{w_{da}}, w_{d}) + 2 \cdot \f{T}{g}{bufn}(w_{d}) + \f{T}{g}{bufp} = 12 + (12 + 46 \cdot 2^{w_{da}}) \cdot w_{d} + 10 \cdot 2^{w_{da}} + (8 + 4\sqrt{2^{w_{da}}}) \cdot \log_{2}(\sqrt{2^{w_{da}}})$. Again the assumption is made that the trivial case is applicable for \texttt{regcf}.
 
 Since the activation function is not used during the inhibition cycle, the gate delay in that cycle is not applicable. During both the forward and the backward cycle the critical path goes through the \texttt{regcf} and one \texttt{bufn}, this means that the gate delay is $\f{D}{d}{regcf} + \f{D}{c}{bufn} = 11$.
+
+Since the only configuration device in the activation function is the configuration register file, the length of the configuration shift register is $2^{w_{da}} \cdot w_{d}$.
 
 \refsubsec{Bias analysis}{abias}
 \PARstart{T}{he} transistor count of the bias neuron can be established in a similar way to the regular neuron, leading to a total transistor count as shown in \Cref{eqn:bias}.
@@ -69,5 +73,31 @@ Since the activation function is not used during the inhibition cycle, the gate 
 
 Both in the forward cycle and in the backward cycle the critical path goes from the corresponding \texttt{ff} and \texttt{ff\_tok}, through and AND gate and through a control input of a \texttt{bufp}, leading to a gate delay of $\f{D}{d}{bufp} + \f{D}{d}{ff} + \f{D}{d}{AND} + \f{D}{c}{bufn} = 9$. In the inhibition cycle the critical path is similar, only the signal does not have to pass through the control input of a \texttt{bufn}, only through the data input, leading to a gate delay of $\f{D}{d}{bufp} + \f{D}{d}{ff} + \f{D}{d}{AND} + \f{D}{d}{bufn} = 8$.
 
+Since only a single configuration register of width $w_{d}$ is present, this is also the configuration register length of the bias neuron.
+
 \refsubsec{Layer and chip analysis}{alayerchip}
-\todo[inline]{type shizzle here}
+\PARstart{S}{ince} one layer consists of $n - 1$ regular neurons, one bias neuron and one activation function, the total transistor count for a complete chip can be derived to equal the formula shown in \Cref{eqn:total}.
+
+\stepcounter{equation}
+\begin{align*}
+  m \cdot \Bigg(
+  (n - 1) \cdot \Big(&95 + (539 + 25w_{d}) \cdot w_{d} + 24w_{a} +\\
+                     &(207 + 4w_{a} + \lceil\log_{2}(n)\rceil) \cdot \lceil\log_{2}(n)\rceil +\\
+                     &(20 + 92w_{d}) \cdot 2^{w_{a}} + \\
+                     &(16 + 8\sqrt{2^{w_{a}}}) \cdot \log_{2}(\sqrt{2^{w_{a}}})\Big) +\\
+  314 + (64 &+ 46 \cdot 2^{w_{da}}) \cdot w_{d} + 10 \cdot 2^{w_{da}} +\\
+  12w_{a} + (8 &+ 4\sqrt{2^{w_{da}}}) \cdot \log_{2}(\sqrt{2^{w_{da}}})
+  \Bigg)\tag{\theequation}\label{eqn:total}
+\end{align*}
+
+Depending on deep analysis of the requirements on the \acp{NN} desired to be run on the substrate, different values can be chosen for the implementation constants to arrive at different implementations optimized for different \acp{NN}. Taking suggested values of $w_{cid} = 4$, $w_{d} = w_{da} = 16$, $n = 128$ and $m = 10$ a transistor count of roughly $4.39$ Billion is achieved. This implementation has the ability to combine up to $16$ chips to achieve larger \acp{NN}. This transistor count is in the same order of magnitude as the \acp{SoC} currently employed in high end smartphone\cite{huawei}. If only a single chip is necessary, the amount of neurons per layer can be quadrupled to $512$ by taking $w_{cid} = 0$ for around the same number of transistors at $4.49$ Billion transistors.
+
+Trading in $6$ layers of neurons for a doubling of the amount of neurons per layer, a transistor count of $6.45$ Billion can be achieved for $4$ layers of $256$ neurons. If instead of $16$ bits of data precision $8$ bits is deemed enough, the number of layers can be doubled for around the same transistor count at $6.34$ Billion transistors.
+
+It should be noted that throughout the analysis the transistor count has been used as indication of the complexity of the suggested substrate. While this is generally appreciated as a usable indication of complexity, since the suggested substrate is a new and quite unique architecture which means that the length and area occupied by wiring could skew the complexity sketched by the transistor count only. Since \ac{CMOS} technology employs more layers to allow wiring to avoid the transistors themselves, it is believed this extra complexity will be negligible.
+
+The total gate delay for the register-to-register transfer during a clock cycle can be determined by adding the output gate delay of the neuron, the gate delay of the activation function and the input gate delay of the following neuron. Since the gate delays of the regular neurons are larger than those of the bias neuron, the maximums of the gate delays of the regular neurons are the relevant gate delays. This leads to a gate delay of $41 + 4w_{d}$ gates. Considering the newest \ac{CMOS} technology node of $7$nm\cite{STILLMAKER201774} with a data path width of $w_{d} = 16$ bits leads to an expected operating frequency of $\frac{1}{(41 + 4 \cdot 16) \cdot 2.47 \cdot 10^{-12}} = 3.86$GHz. Which is a frequency in the same range of current high end general \acp{CPU}.
+
+Since the gate delay of each flip-flop in the whole configuration shift register chain is only $2$, the configuration frequency could theoretically be as high as $\frac{1}{2 \cdot 2.47 \cdot 10^{-12}} = 202$GHz. However due to the difficulty of distributing the clock signal evenly through the whole chip, which is necessary for configuration but not for operation, the final effective configuration frequency will be a whole lot lower. However even the largest implementation considered with $n = 512$ and $m = 10$ only has $(n - 1) \cdot (2 + 2^{w_{a}}) \cdot w_{d} + 2 \cdot \lceil\log_{2}(n)\rceil + (2^{w_{da}} + 1) \cdot w_{d} = 5267522$ bits of configuration space. Even with a relatively low configuration frequency of $1$GHz, this implementation can be configured in only $\frac{5267522}{1 \cdot 10^{9}} = 5.27 \cdot 10^{-3}$s.
+
+So while the number of neurons per layer and the number of layers per chip can be considered limited, the frequency of operation is wholly adequate for all inference tasks on the suggested substrate. Also configuration of the chip for running inference on a certain \ac{NN} implementation is considered fast enough.
